@@ -4,7 +4,7 @@ import neat
 from Player import Player
 from numpy import argmax
 
-class AIPlayer(Player):
+class NEATPLAYER(Player):
 
     def __init__(this, network, delay=0, name=None):
         super().__init__(name)
