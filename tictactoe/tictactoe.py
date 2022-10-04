@@ -1,12 +1,11 @@
 
-from unittest import result
+import argparse
+from ast import arg
 
-from numpy import true_divide
-from Player import Player
-from HumanPlayer import HumanPlayer
-from AIPlayer import AIPlayer
+from Player import Player, HumanPlayer
+from neat.NEATPlayer import NEATPlayer
 
-class Game:
+class TicTacToe:
     
     board = [0] * 9
     marks = []
@@ -30,18 +29,24 @@ class Game:
         this.board[move] = this.curr_player.mark
         return this.check_win()
 
-    def is_available(this, position):
-        return position >= 0 and position <= 8 and this.board[position] == 0
+    def is_available(this, position, board=None):
+        if board:
+            return position >= 0 and position <= 8 and board[position] == 0
+        else:
+            return position >= 0 and position <= 8 and this.board[position] == 0
 
-    def check_win(this):
-        if all(x != 0 for x in this.board):
+    def check_win(this, board=None):
+        if board is None:
+            board = this.board
+
+        if all(x != 0 for x in board):
             return -1
 
         winning_configurations = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
         for winning_configuration in winning_configurations:
-            mark = this.board[winning_configuration[0]]
+            mark = board[winning_configuration[0]]
             for position in winning_configuration:
-                if this.board[position] == 0 or this.board[position] != mark:
+                if board[position] == 0 or board[position] != mark:
                     break
             else:
                 return 1
@@ -125,10 +130,17 @@ class Game:
             n_games_played += 1
 
 if __name__ == "__main__":
-    game = Game()
+
+    # parser = argparse.ArgumentParser(description='Play tictactoe')
+    # parser.add_argument('--n-cpus, -c', metavar='C', type=int, help='number of computer players', choices=[0, 1, 2], default=0, dest='cpus')
+    # parser.add_argument('--cpu-type', metavar='Type', type=list, help="type of CPU player(s)", )
+    # parser.add_argument('--checkpoint', '-c', dest="checkpoint", metavar='CP', type=str,
+    #                 help='name of the config file', default='neat/checkpoints')
+    # args = parser.parse_args()
+
     player1 = HumanPlayer()
     player2 = HumanPlayer()
-    game.play(player1, player2, n_games=-1, display=True)
+    TicTacToe().play(player1, player2, n_games=-1, display=True)
 
 
 
