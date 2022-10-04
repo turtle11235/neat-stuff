@@ -3,7 +3,7 @@ import argparse
 from ast import arg
 
 from Player import Player, HumanPlayer
-from neat.NEATPlayer import NEATPlayer
+# from neat.NEATPlayer import NEATPlayer
 
 class TicTacToe:
     
