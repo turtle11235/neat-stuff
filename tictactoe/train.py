@@ -18,8 +18,8 @@ rewards = {
     'bad_move': -20,
     'move': -1
 }
-epsilon_decay = 1 - 1e-5
-discount_step = 1e-10
+epsilon_decay = 1 - 1e-6
+discount_decay = 1 - 1e-6
 
 def train():
     global epsilon_decay
@@ -59,7 +59,7 @@ def train():
         TicTacToe().play(player1, player2)
 
         vars['epsilon'] *= epsilon_decay
-        vars['discount_factor'] = min(1, vars['discount_factor'] + discount_step)
+        vars['discount_factor'] = 1 - ((1 - vars['discount_factor']) * discount_decay)
 
     print("Final result:")
     for k, v in random.sample(list(q_table.items()), k=50):
