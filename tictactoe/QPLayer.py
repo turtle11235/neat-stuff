@@ -28,7 +28,7 @@ class QPlayer(AIPlayer):
         return move
 
     def get_move(this, board, retry=False):
-        if not retry or random.random() > this.variables['epsilon']:
+        if not retry and random.random() > this.variables['epsilon']:
             return this.get_greedy_move(board)
         else:
             return this.get_random_move(board)
