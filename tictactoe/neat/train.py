@@ -11,9 +11,9 @@ import visualize
 import random
 import argparse
 
-from AIPlayer import AIPlayer
-from Game import Game
-from HumanPlayer import HumanPlayer
+from NEATPlayer import NEATPlayer
+from ..tictactoe import TicTacToe
+from ..Player import HumanPlayer
 
 
 def derange(items):
@@ -37,14 +37,14 @@ def calculate_fitness(player):
         return (player.num_wins + .5 * player.num_ties) / player.num_games
 
 def eval_genomes(genomes, config):
-    players = [AIPlayer(neat.nn.FeedForwardNetwork.create(g, config), name=f"Bot {id}") for id, g in genomes]
+    players = [NEATPlayer(neat.nn.FeedForwardNetwork.create(g, config), name=f"Bot {id}") for id, g in genomes]
 
     for player1, (genome1_id, genome1) in zip(players, genomes):
         for player2, (genome2_id, genome2) in zip(players, genomes):
             if genome1_id == genome2_id:
                 continue
             
-            Game().play(player1, player2, display=False)
+            TicTacToe().play(player1, player2, display=False)
             
             genome1.fitness = calculate_fitness(player1)
             genome2.fitness = calculate_fitness(player2)
@@ -74,8 +74,8 @@ def run(config_file, checkpoint_file):
     visualize.plot_species(stats, view=True)
 
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    winner_player = AIPlayer(winner_net, delay=1, name=f"Bot {winner.key}")
-    Game().play(HumanPlayer(), winner_player, n_games=-1, display=True)
+    winner_player = NEATPlayer(winner_net, delay=1, name=f"Bot {winner.key}")
+    TicTacToe().play(HumanPlayer(), winner_player, n_games=-1, display=True)
 
     # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
     # p.run(eval_genomes, 10)

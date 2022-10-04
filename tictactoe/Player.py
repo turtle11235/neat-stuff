@@ -1,3 +1,4 @@
+import time
 
 class Player:
 
@@ -30,4 +31,19 @@ class Player:
         this.num_ties += 1
         this.num_games += 1
 
+class HumanPlayer(Player):
 
+    def _make_move(this, *_):
+        return int(input())
+
+class AIPlayer(Player):
+
+    def __init__(this, delay=0, name=None):
+        super().__init__(name)
+        this.delay = delay
+
+    def make_move(this, board, retry=False):
+        start = time.time()
+        result = super().make_move(board, retry)
+        time.sleep(max(this.delay - (time.time() - start), 0))
+        return result
