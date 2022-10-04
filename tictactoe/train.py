@@ -13,7 +13,7 @@ from QPLayer import QPlayer
 
 # constants
 initial_q = 0
-max_games = 5000000
+max_games = 10000000
 checkpoint_frequency = 50000
 rewards = {
     'win': 100,
