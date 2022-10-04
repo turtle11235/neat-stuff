@@ -27,9 +27,9 @@ discount_decay = 1 - 1e-6
 learning_decay = 1 - 1e-6
 
 def checkpoint(q_table, vars, total_time, checkpoint_time, game):
-    print(f"*** GAME {game} ***")
+    print(f"*** GAME {game} ***\n")
     print(f"epsilon={vars['epsilon']:.2f}, discount={vars['discount_factor']:.2f}, learning rate={vars['learning_rate']:.2f}")
-    print(f"cp time={(checkpoint_time):.2f} sec, total time={total_time:.2f} sec")
+    print(f"cp time={(checkpoint_time):.2f} sec, total time={total_time:.2f} sec\n")
     for k, v in random.sample(list(q_table.items()), k=min(10, len(q_table))):
         print(f"  {k}:\t{v}")
     print()
