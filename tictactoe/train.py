@@ -20,17 +20,20 @@ rewards = {
 }
 epsilon_decay = 1 - 1e-6
 
-# starting variables
-vars = {
-    'epsilon': 1,
-    'learning_rate': 1,
-    'discount_factor': .3,
-}
 
-q_table = defaultdict(lambda: [initial_q] * 9)
 
 def train():
     global epsilon_decay
+
+    # starting variables
+    vars = {
+        'epsilon': 1,
+        'learning_rate': .3,
+        'discount_factor': .3,
+    }
+
+    q_table = defaultdict(lambda: [initial_q] * 9)
+
     from Player import HumanPlayer
     from tictactoe import TicTacToe
     from QPLayer import QPlayer
@@ -39,9 +42,9 @@ def train():
     checkpoint_time = start_time
 
     for i in range(1, max_games+1):
-        if i % checkpoint_frequency == 0:
-            print(f"*** GAME {i}: epsilon={vars['epsilon']:.2f}, cp time={(time.time() - checkpoint_time):.2f} sec, total time={time.time() - start_time:.2f} sec ***")
-            for k, v in random.sample(list(q_table.items()), k=10):
+        if i == 1 or i % checkpoint_frequency == 0:
+            print(f"*** GAME {i} ***\nstate size: {len(q_table)}, epsilon={vars['epsilon']:.2f}, cp time={(time.time() - checkpoint_time):.2f} sec, total time={time.time() - start_time:.2f} sec")
+            for k, v in random.sample(list(q_table.items()), k=min(10, len(q_table))):
                 print(f"  {k}:\t{v}")
             print()
             with open('q_checkpoint.json', 'w') as fp:

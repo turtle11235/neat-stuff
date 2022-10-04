@@ -18,13 +18,28 @@ class QPlayer(AIPlayer):
         this.prev_state = None
         this.prev_move = None
 
+        this.prev_states = []
+        this.prev_moves = []
+
+    def is_new_game(this, board):
+        n_moves = len(np.where(np.array(board) != 0)[0])
+        if n_moves == 0 or n_moves == 1:
+            return True
+        else:
+            return False
+
     def _make_move(this, board, retry):
-        if retry:
-            this.update_q(board, this.prev_move, this.rewards['bad_move'])
+        # if retry:
+        #    this.update_q(board, this.prev_move, this.rewards['bad_move'])
             
         move = this.get_move(board, retry)
         this.prev_state = this.board_to_state(board)
         this.prev_move = move
+        if this.is_new_game(board):
+            this.prev_states = []
+            this.prev_moves = []
+        this.prev_states.append(this.prev_state)
+        this.prev_moves.append(this.prev_move)
         return move
 
     def get_move(this, board, retry=False):
@@ -39,7 +54,14 @@ class QPlayer(AIPlayer):
 
     def get_greedy_move(this, board):
         state = this.board_to_state(board)
-        return argmax(this.q_table[state])
+        q_vals = this.q_table[state]
+        max_q = -np.inf
+        greedy_move = None
+        for i in range(len(board)):
+            if board[i] == 0 and q_vals[i] > max_q:
+                max_q = q_vals[i]
+                greedy_move = i
+        return greedy_move
 
     def board_to_state(this, board, mark=None):
         if mark is None:
@@ -50,16 +72,20 @@ class QPlayer(AIPlayer):
         *board, _ = [int(x) for x in state]
         return board
     
-    def update_q(this, board, move, reward):
-        state = this.board_to_state(board)
-        curr_q = this.q_table[state][this.prev_move]
+    def update_q_table(this, reward):
         alpha = this.variables['learning_rate']
         gamma = this.variables['discount_factor']
-        max_q = this.get_future_value(state)
 
-        updated_q = curr_q + alpha * (reward + gamma * max_q - curr_q)
-        this.q_table[state][move] = updated_q
-
+        future_q = None
+        for state, move, i in zip(this.prev_states[::-1], this.prev_moves[::-1], range(len(this.prev_states))):
+            curr_q = this.q_table[state][move]
+            if i > 0:
+                updated_q = curr_q + alpha * (gamma * future_q - curr_q)
+            else:
+                updated_q = curr_q + alpha * (reward - curr_q)
+            future_q = updated_q
+            this.q_table[state][move] = updated_q
+            
     def get_future_value(this, state):
         current_board = this.state_to_board(state)
         
@@ -78,13 +104,15 @@ class QPlayer(AIPlayer):
 
     def win(this):
         super().win()
-        this.q_table[this.prev_state][this.prev_move] = this.rewards['win']
+        # board = this.state_to_board(this.prev_state)
+        # this.update_q(board, this.prev_move, this.rewards['win'])
+        this.update_q_table(this.rewards['win'])
 
     def lose(this):
         super().win()
-        this.q_table[this.prev_state][this.prev_move] = this.rewards['lose']
+        this.update_q_table(this.rewards['lose'])
 
     def tie(this):
         super().win()
-        this.q_table[this.prev_state][this.prev_move] = this.rewards['tie']
+        this.update_q_table(this.rewards['tie'])
         
