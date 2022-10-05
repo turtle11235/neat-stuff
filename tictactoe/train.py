@@ -10,6 +10,7 @@ import json
 from Player import HumanPlayer
 from tictactoe import TicTacToe
 from QPLayer import QPlayer
+from TicTacToeQTable import TicTacToeQTable
 
 # constants
 initial_q = 0
@@ -65,7 +66,8 @@ def initialize_training():
         'discount_factor': 0,
     }
 
-    q_table = defaultdict(lambda: [initial_q] * 9)
+    # q_table = defaultdict(lambda: [initial_q] * 9)
+    q_table = Tic
 
     return vars, q_table, 0, 1
 

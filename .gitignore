@@ -2,3 +2,5 @@
 # checkpoint folders
 tictactoe/checkpoints/*
 q_checkpoint.json
+
+__pycache__

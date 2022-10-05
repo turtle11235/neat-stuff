@@ -4,6 +4,7 @@ from tictactoe import TicTacToe
 from Player import AIPlayer
 import numpy as np
 from numpy import argmax, where
+from TicTacToeQTable import TicTacToeQTable
 
 class QPlayer(AIPlayer):
 
@@ -63,14 +64,21 @@ class QPlayer(AIPlayer):
                 greedy_move = i
         return greedy_move
 
+    def get_q_value(this, board, move):
+        board_matrix = np.array(board)
+        np.expand_dims(board_matrix, 0)
+        board_matrix[move, 1] = this.mark
+
+        found = False
+        for i in range(4):
+            state = this.board_to_state(board)
+            if state in this.q_table:
+                found = True
+
     def board_to_state(this, board, mark=None):
         if mark is None:
             mark = this.mark
         return ''.join((*[str(x) for x in board], str(this.mark)))
-
-    def state_to_board(this, state):
-        *board, _ = [int(x) for x in state]
-        return board
     
     def update_q_table(this, reward):
         alpha = this.variables['learning_rate']
@@ -85,27 +93,12 @@ class QPlayer(AIPlayer):
                 updated_q = curr_q + alpha * (reward - curr_q)
             future_q = updated_q
             this.q_table[state][move] = updated_q
-            
-    def get_future_value(this, state):
-        current_board = this.state_to_board(state)
-        
-        opp_mark = this.get_opponent_mark()
-        opp_state = this.board_to_state(current_board, opp_mark)
-        opp_best_move = argmax(this.q_table[opp_state])
-
-        future_board = current_board.copy()
-        future_board[opp_best_move] = opp_mark
-        future_state = this.board_to_state(future_board)
-
-        return max(this.q_table[future_state])
 
     def get_opponent_mark(this):
         return 1 if this.mark == 2 else 2
 
     def win(this):
         super().win()
-        # board = this.state_to_board(this.prev_state)
-        # this.update_q(board, this.prev_move, this.rewards['win'])
         this.update_q_table(this.rewards['win'])
 
     def lose(this):
