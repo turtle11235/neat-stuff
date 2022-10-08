@@ -8,7 +8,7 @@ from TicTacToeQTable import TicTacToeQTable
 
 class QPlayer(AIPlayer):
 
-    def __init__(this, q_table, rewards, variables, name=None, delay=0):
+    def __init__(this, q_table: TicTacToeQTable, rewards, variables, name=None, delay=0):
         super().__init__(delay, name)
 
         this.q_table = q_table
@@ -20,6 +20,7 @@ class QPlayer(AIPlayer):
         this.prev_move = None
 
         this.prev_states = []
+        this.prev_boards = []
         this.prev_moves = []
 
     def is_new_game(this, board):
@@ -40,6 +41,7 @@ class QPlayer(AIPlayer):
             this.prev_states = []
             this.prev_moves = []
         this.prev_states.append(this.prev_state)
+        this.prev_boards.append(board)
         this.prev_moves.append(this.prev_move)
         return move
 
@@ -54,8 +56,9 @@ class QPlayer(AIPlayer):
         return random.choice(valid_moves)
 
     def get_greedy_move(this, board):
-        state = this.board_to_state(board)
-        q_vals = this.q_table[state]
+        # state = this.board_to_state(board)
+        # q_vals = this.q_table[state]
+        q_vals = this.q_table.get_row(board, this.mark)
         max_q = -np.inf
         greedy_move = None
         for i in range(len(board)):
@@ -63,17 +66,6 @@ class QPlayer(AIPlayer):
                 max_q = q_vals[i]
                 greedy_move = i
         return greedy_move
-
-    def get_q_value(this, board, move):
-        board_matrix = np.array(board)
-        np.expand_dims(board_matrix, 0)
-        board_matrix[move, 1] = this.mark
-
-        found = False
-        for i in range(4):
-            state = this.board_to_state(board)
-            if state in this.q_table:
-                found = True
 
     def board_to_state(this, board, mark=None):
         if mark is None:
@@ -85,14 +77,16 @@ class QPlayer(AIPlayer):
         gamma = this.variables['discount_factor']
 
         future_q = None
-        for state, move, i in zip(this.prev_states[::-1], this.prev_moves[::-1], range(len(this.prev_states))):
-            curr_q = this.q_table[state][move]
+        for board, move, i in zip(this.prev_boards[::-1], this.prev_moves[::-1], range(len(this.prev_boards))):
+            # curr_q = this.q_table[state][move]
+            curr_q = this.q_table.get_q(board, this.mark, move)
             if i > 0:
                 updated_q = curr_q + alpha * (gamma * future_q - curr_q)
             else:
                 updated_q = curr_q + alpha * (reward - curr_q)
             future_q = updated_q
-            this.q_table[state][move] = updated_q
+            # this.q_table[state][move] = updated_q
+            this.q_table.set_q(board, this.mark, move, updated_q)
 
     def get_opponent_mark(this):
         return 1 if this.mark == 2 else 2

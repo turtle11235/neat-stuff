@@ -29,7 +29,7 @@ learning_decay = 1 - 1e-6
 
 def checkpoint(q_table, vars, total_time, checkpoint_time, game):
     print(f"*** GAME {game} ***\n")
-    print(f"epsilon={vars['epsilon']:.2f}, discount={vars['discount_factor']:.2f}, learning rate={vars['learning_rate']:.2f}")
+    print(f"state size={len(q_table)}, epsilon={vars['epsilon']:.2f}, discount={vars['discount_factor']:.2f}, learning rate={vars['learning_rate']:.2f}")
     print(f"cp time={(checkpoint_time):.2f} sec, total time={total_time:.2f} sec\n")
     for k, v in random.sample(list(q_table.items()), k=min(10, len(q_table))):
         print(f"  {k}:\t{v}")
@@ -45,6 +45,7 @@ def checkpoint(q_table, vars, total_time, checkpoint_time, game):
             'max_games': max_games,
             'checkpoint_frequency': checkpoint_frequency,
             'total_time': total_time,
+            'initial_q': initial_q,
             'q_table': q_table
         }, fp)
     checkpoint_time = time.time()
@@ -55,8 +56,7 @@ def initialize_training_from_checkpoint():
         for k, v in checkpoint.items():
             if k in globals():
                 globals()[k] = v
-        return checkpoint['vars'], checkpoint['q_table'], checkpoint['total_time'], checkpoint['current_game'] + 1
-
+        return checkpoint['vars'], TicTacToeQTable(initial_q, checkpoint['q_table']), checkpoint['total_time'], checkpoint['current_game'] + 1
 
 def initialize_training():
     # starting variables
@@ -67,7 +67,7 @@ def initialize_training():
     }
 
     # q_table = defaultdict(lambda: [initial_q] * 9)
-    q_table = Tic
+    q_table = TicTacToeQTable(initial_q)
 
     return vars, q_table, 0, 1
 
