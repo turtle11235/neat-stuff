@@ -39,9 +39,7 @@ class TicTacToe:
         if board is None:
             board = this.board
 
-        if all(x != 0 for x in board):
-            return -1
-
+        
         winning_configurations = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
         for winning_configuration in winning_configurations:
             mark = board[winning_configuration[0]]
@@ -51,7 +49,10 @@ class TicTacToe:
             else:
                 return 1
         else:
-            return 0
+            if all(x != 0 for x in board):
+                return -1
+            else:
+                return 0
 
     def switch_sides(this):
         temp = this.curr_player
@@ -86,11 +87,11 @@ class TicTacToe:
 
         this.player1 = player1
         this.player1.name = this.player1.name if this.player1.name else "Player 1"
-        this.player1.mark = 1 if this.player1.mark is None else player1.mark
+        this.player1.mark = 1
 
         this.player2 = player2
         this.player2.name = this.player2.name if this.player2.name else "Player 2"
-        this.player2.mark = 2 if this.player2.mark is None else player2.mark
+        this.player2.mark = 2
         
         this.curr_player = player1
         this.next_player = player2

@@ -41,7 +41,7 @@ class QPlayer(AIPlayer):
             this.prev_states = []
             this.prev_moves = []
         this.prev_states.append(this.prev_state)
-        this.prev_boards.append(board)
+        this.prev_boards.append(board.copy())
         this.prev_moves.append(this.prev_move)
         return move
 
@@ -56,16 +56,11 @@ class QPlayer(AIPlayer):
         return random.choice(valid_moves)
 
     def get_greedy_move(this, board):
-        # state = this.board_to_state(board)
-        # q_vals = this.q_table[state]
         q_vals = this.q_table.get_row(board, this.mark)
-        max_q = -np.inf
-        greedy_move = None
-        for i in range(len(board)):
-            if board[i] == 0 and q_vals[i] > max_q:
-                max_q = q_vals[i]
-                greedy_move = i
-        return greedy_move
+        valid_moves = np.array(board) == 0
+        combo = [q if v else -np.inf for q, v in zip(q_vals, valid_moves)]
+        return np.argmax(combo)
+
 
     def board_to_state(this, board, mark=None):
         if mark is None:

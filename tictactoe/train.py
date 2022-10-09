@@ -23,30 +23,31 @@ rewards = {
     'bad_move': -20,
     'move': -1
 }
-epsilon_decay = 1 - 1e-6
-discount_decay = 1 - 1e-6
-learning_decay = 1 - 1e-6
+# epsilon_decay = 1 - 1e-6
+# discount_decay = 1 - 1e-6
+# learning_decay = 1 - 1e-6
+
+def create_step_decay_variable(start, end, steps):
+    step_size = (end - start) / steps
+    return lambda step: start + (step_size * step)
 
 def checkpoint(q_table, vars, total_time, checkpoint_time, game):
     print(f"*** GAME {game} ***\n")
     print(f"state size={len(q_table)}, epsilon={vars['epsilon']:.2f}, discount={vars['discount_factor']:.2f}, learning rate={vars['learning_rate']:.2f}")
     print(f"cp time={(checkpoint_time):.2f} sec, total time={total_time:.2f} sec\n")
-    for k, v in random.sample(list(q_table.items()), k=min(10, len(q_table))):
+    for k, v in random.sample(list(q_table.store.items()), k=min(10, len(q_table))):
         print(f"  {k}:\t{v}")
     print()
     with open('q_checkpoint.json', 'w') as fp:
         json.dump({
             'vars': vars,
             'rewards': rewards, 
-            'epsilon_decay': epsilon_decay, 
-            'discount_decay': discount_decay,
-            'learning_decay': learning_decay,
             'current_game': game, 
             'max_games': max_games,
             'checkpoint_frequency': checkpoint_frequency,
             'total_time': total_time,
             'initial_q': initial_q,
-            'q_table': q_table
+            'q_table': q_table.store
         }, fp)
     checkpoint_time = time.time()
 
@@ -62,7 +63,7 @@ def initialize_training():
     # starting variables
     vars = {
         'epsilon': 1,
-        'learning_rate': 0.01,
+        'learning_rate': 0.1,
         'discount_factor': 0,
     }
 
@@ -79,6 +80,10 @@ def train(from_checkpoint=False):
     else:
         vars, q_table, total_time, starting_game = initialize_training()
 
+    epsilon_decay = create_step_decay_variable(vars['epsilon'], 0, max_games-starting_game)
+    discount_decay = create_step_decay_variable(vars['discount_factor'], 1, max_games-starting_game)
+    learning_decay = create_step_decay_variable(vars['learning_rate'], .8, max_games-starting_game)
+
     checkpoint_start = time.time()
     for i in range(starting_game, max_games+1):
         player1 = QPlayer(q_table, rewards=rewards, variables=vars, name=f"Bot {i}A")
@@ -92,12 +97,12 @@ def train(from_checkpoint=False):
             checkpoint(q_table, vars, total_time, checkpoint_time, i)
             checkpoint_start = time.time()
 
-        vars['epsilon'] *= epsilon_decay
-        vars['discount_factor'] = 1 - ((1 - vars['discount_factor']) * discount_decay)
-        vars['learning_rate'] = 1 - ((1 - vars['learning_rate']) * learning_decay)
+        vars['epsilon'] = epsilon_decay(i)
+        vars['discount_factor'] = discount_decay(i)
+        vars['learning_rate'] = learning_decay(i)
 
     print("Final result:")
-    for k, v in random.sample(list(q_table.items()), k=50):
+    for k, v in random.sample(list(q_table.store.items()), k=min(50, len(q_table))):
         print(f"  {k}:\t{v}")
     print()
 
