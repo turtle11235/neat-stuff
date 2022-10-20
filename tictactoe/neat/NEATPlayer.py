@@ -3,13 +3,9 @@ import neat
 
 from numpy import argmax
 
-<<<<<<<< HEAD:tictactoe/NEATPlayer.py
-class NEATPLAYER(Player):
-========
 from tictactoe.Player import AIPlayer
 
 class NEATPlayer(AIPlayer):
->>>>>>>> 77ee61d3fbf1bc23da11aeb84ad9402f92c8bcfc:tictactoe/neat/NEATPlayer.py
 
     def __init__(this, network, delay=0, name=None):
         super().__init__(name)

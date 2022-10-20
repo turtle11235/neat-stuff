@@ -4,3 +4,5 @@ tictactoe/checkpoints/*
 q_checkpoint.json
 
 __pycache__
+
+env/

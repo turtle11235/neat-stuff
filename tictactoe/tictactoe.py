@@ -1,8 +1,11 @@
 
 import argparse
 from ast import arg
+import json
 
 from Player import Player, HumanPlayer
+from QPLayer import QPlayer
+from TicTacToeQTable import TicTacToeQTable
 # from neat.NEATPlayer import NEATPlayer
 
 class TicTacToe:
@@ -130,18 +133,25 @@ class TicTacToe:
             n_games -= 1
             n_games_played += 1
 
+def create_player(player_type):
+    if player_type == "human":
+        return HumanPlayer()
+    elif player_type == "q":
+       return QPlayer.load_from_checkpoint()
+
+
 if __name__ == "__main__":
 
-    # parser = argparse.ArgumentParser(description='Play tictactoe')
-    # parser.add_argument('--n-cpus, -c', metavar='C', type=int, help='number of computer players', choices=[0, 1, 2], default=0, dest='cpus')
-    # parser.add_argument('--cpu-type', metavar='Type', type=list, help="type of CPU player(s)", )
-    # parser.add_argument('--checkpoint', '-c', dest="checkpoint", metavar='CP', type=str,
-    #                 help='name of the config file', default='neat/checkpoints')
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Play tictactoe')
+    parser.add_argument('-x', '--playerx', metavar='P1', type=str, help='Player 1 type', choices=['human', 'neat', 'q'], default='human', dest='p1')
+    parser.add_argument('-o', '--playero', metavar='P2', type=str, help='Player 2 type', choices=['human', 'neat', 'q'], default='human', dest='p2')
+    parser.add_argument('-n', metavar='N', type=int, help='Number of games (-1 for unlimited)', default=-1, dest='n')
+    args = parser.parse_args()
 
-    player1 = HumanPlayer()
-    player2 = HumanPlayer()
-    TicTacToe().play(player1, player2, n_games=-1, display=True)
+    player1 = create_player(args.p1)
+    player2 = create_player(args.p2)
+
+    TicTacToe().play(player1, player2, n_games=args.n, display=True)
 
 
 

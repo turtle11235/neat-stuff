@@ -14,7 +14,7 @@ from TicTacToeQTable import TicTacToeQTable
 
 # constants
 initial_q = 0
-max_games = 10000000
+max_games = 5000000
 checkpoint_frequency = 50000
 rewards = {
     'win': 100,
@@ -38,7 +38,7 @@ def checkpoint(q_table, vars, total_time, checkpoint_time, game):
     for k, v in random.sample(list(q_table.store.items()), k=min(10, len(q_table))):
         print(f"  {k}:\t{v}")
     print()
-    with open('q_checkpoint.json', 'w') as fp:
+    with open('q_checkpoint_v2.json', 'w') as fp:
         json.dump({
             'vars': vars,
             'rewards': rewards, 
